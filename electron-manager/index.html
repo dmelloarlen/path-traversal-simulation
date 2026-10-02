@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Virtual Lab Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f4f6;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+        }
+
+        button {
+            padding: 12px 22px;
+            margin: 8px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .start { background: #16a34a; color: white; }
+        .stop { background: #dc2626; color: white; }
+        .reset { background: #2563eb; color: white; }
+
+        pre {
+            background: #111827;
+            color: #d1fae5;
+            padding: 18px;
+            min-height: 180px;
+            white-space: pre-wrap;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Virtual Lab Manager</h1>
+        <h3>Path Traversal Experiment</h3>
+
+        <p>Lab Status: <span id="status">Not checked</span></p>
+
+        <button class="start" onclick="startLab()">Start Lab</button>
+        <button class="stop" onclick="stopLab()">Stop Lab</button>
+        <button class="reset" onclick="resetLab()">Reset Lab</button>
+        <button onclick="checkStatus()">Check Status</button>
+
+        <p>Target: http://localhost:3000</p>
+
+        <h3>Activity Logs</h3>
+        <pre id="logs">Lab Manager Ready</pre>
+    </div>
+
+    <script>
+        const logs = document.getElementById("logs");
+
+        function addLog(message) {
+            logs.textContent += "\n" + message;
+        }
+
+        function startLab() {
+            addLog("Starting lab...");
+            window.lab.start();
+        }
+
+        function stopLab() {
+            addLog("Stopping lab...");
+            window.lab.stop();
+        }
+
+        function resetLab() {
+            addLog("Resetting lab...");
+            window.lab.reset();
+        }
+
+        async function checkStatus() {
+            const result = await window.lab.status();
+            document.getElementById("status").textContent = result;
+            addLog(result);
+        }
+
+        window.lab.onLog((data) => {
+            addLog(data.output);
+            if (data.error) addLog(data.error);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+services:
+  path-traversal-target:
+    build:
+      context: ./target
+    container_name: path-traversal-target
+    ports:
+      - "127.0.0.1:3000:3000"
+    networks:
+      - lab-network
+    mem_limit: 256m
+    cpus: 0.5
+    restart: unless-stopped
+
+networks:
+  lab-network:
+    driver: bridge
+    internal: true
