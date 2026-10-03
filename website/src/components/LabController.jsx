@@ -88,7 +88,9 @@ export default function LabController() {
         <div className="lab-status">
             <div className="status-heading">
                 <strong>Lab Controller</strong>
-                <span className="status-indicator">● {status}</span>
+                <span className="status-indicator" style={{ color: status === "Running" ? "green" : status === "Error" ? "red" : "orange" }}>
+                    ● {status}
+                </span>
             </div>
 
             {!electronAvailable && (

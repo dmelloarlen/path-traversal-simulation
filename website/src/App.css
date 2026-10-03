@@ -119,6 +119,13 @@
     box-shadow: var(--shadow-soft);
 }
 
+.quiz-main-content {
+    height: var(--sidebar-height);
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
 /* =========================
    ExperimentTabs.jsx styles
 ========================= */
@@ -1109,6 +1116,14 @@
     box-shadow: var(--shadow-soft);
 }
 
+.quiz-document {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+}
+
 .document-label {
     display: inline-flex;
     padding: 7px 12px;
@@ -1190,8 +1205,8 @@
 }
 
 .section-body code {
-    background: rgba(169, 95, 66, 0.08);
-    color: var(--accent-dark);
+    background: rgb(43 38 35);
+    color: #e9e9e9;
     padding: 2px 6px;
     border-radius: 6px;
     font-family: monospace;
@@ -1241,13 +1256,15 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 16px 20px;
+    padding: 5px 20px;
     background: linear-gradient(135deg, #f8e9e0, #f4ddd0);
     border: 1px solid rgba(169, 95, 66, 0.3);
     border-radius: 16px;
     margin-bottom: 24px;
     gap: 16px;
     flex-wrap: wrap;
+    position: sticky;
+    top: 24px;
 }
 
 .submit-quiz-btn, .reset-quiz-btn {
@@ -1285,7 +1302,12 @@
 .quiz-questions-list {
     display: flex;
     flex-direction: column;
+    flex: 1;
     gap: 20px;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 2px 8px 2px 2px;
 }
 
 .quiz-card {
@@ -1390,6 +1412,23 @@
 
     .resources {
         position: static;
+    }
+
+    .quiz-main-content {
+        height: auto;
+        overflow: visible;
+    }
+
+    .quiz-document {
+        height: auto;
+        min-height: 0;
+        overflow: visible;
+    }
+
+    .quiz-questions-list {
+        flex: initial;
+        overflow: visible;
+        padding: 0;
     }
 }
 

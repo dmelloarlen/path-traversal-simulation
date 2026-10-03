@@ -5,16 +5,16 @@ const tabs = [
     "Theory",
     "Procedure",
     "Simulation",
-    "Quiz / Assessment",
-    "References",
-    "Feedback",
+    // "References",
+    // "Feedback",
     "Test Cases",
-    "Expected Output"
+    "Expected Output",
+    "Quiz / Assessment"
 ];
 
-export default function Sidebar({ activeTab, setActiveTab }) {
+export default function Sidebar({ activeTab, setActiveTab, sidebarRef }) {
     return (
-        <aside className="resources">
+        <aside ref={sidebarRef} className="resources">
 
             <div className="resource-title">
                 <strong>Experiment Sections</strong>

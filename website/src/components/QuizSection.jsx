@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const quizQuestions = [
+const questionBank = [
     {
         id: 1,
         question: "What is the primary cause of a Path Traversal vulnerability?",
@@ -483,7 +483,22 @@ const quizQuestions = [
     }
 ];
 
+function getRandomQuestions() {
+    const shuffledQuestions = [...questionBank];
+
+    for (let i = shuffledQuestions.length - 1; i > 0; i -= 1) {
+        const randomIndex = Math.floor(Math.random() * (i + 1));
+        [shuffledQuestions[i], shuffledQuestions[randomIndex]] = [
+            shuffledQuestions[randomIndex],
+            shuffledQuestions[i]
+        ];
+    }
+
+    return shuffledQuestions.slice(0, 20);
+}
+
 export default function QuizSection() {
+    const [quizQuestions, setQuizQuestions] = useState(() => getRandomQuestions());
     const [userAnswers, setUserAnswers] = useState({});
     const [submitted, setSubmitted] = useState(false);
 
@@ -505,18 +520,27 @@ export default function QuizSection() {
     const handleResetQuiz = () => {
         setUserAnswers({});
         setSubmitted(false);
+        setQuizQuestions(getRandomQuestions());
+    };
+
+    const handleSubmitQuiz = () => {
+        const confirmed = window.confirm(
+            "Are you sure you want to submit the quiz? Unanswered questions will be marked incorrect."
+        );
+        if (confirmed) {
+            setSubmitted(true);
+        }
     };
 
     const score = calculateScore();
     const percentage = Math.round((score / quizQuestions.length) * 100);
 
     return (
-        <div className="document">
+        <div className="document quiz-document">
             <div className="document-label">
                 PATH TRAVERSAL LAB · QUIZ ASSESSMENT
             </div>
-            <h1>Path Traversal Assessment (40 Questions)</h1>
-            <p className="subtitle">Test your knowledge on directory traversal vectors, encodings, impacts, and remediation techniques.</p>
+            <h1>Path Traversal Assessment</h1>
 
             <div className="quiz-summary-card">
                 <div>
@@ -530,7 +554,7 @@ export default function QuizSection() {
                     <button
                         className="submit-quiz-btn"
                         disabled={Object.keys(userAnswers).length === 0}
-                        onClick={() => setSubmitted(true)}
+                        onClick={handleSubmitQuiz}
                     >
                         Submit & Grade Quiz
                     </button>
