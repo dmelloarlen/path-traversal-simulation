@@ -370,9 +370,8 @@
     line-height: 1.6;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
-    height: 50px;
-    overflow: hidden;
-    
+    max-height: 100px;
+    overflow-y: auto;
 }
 
 /* =========================

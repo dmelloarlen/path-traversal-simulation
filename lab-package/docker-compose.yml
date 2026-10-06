@@ -4,7 +4,7 @@ services:
       context: ./target
     container_name: path-traversal-target
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
     networks:
       - lab-network
     mem_limit: 256m
@@ -14,4 +14,3 @@ services:
 networks:
   lab-network:
     driver: bridge
-    internal: true
