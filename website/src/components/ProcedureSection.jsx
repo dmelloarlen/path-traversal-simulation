@@ -18,7 +18,6 @@ export default function ProcedureSection() {
                 <h2>1. Start the Lab</h2>
 
                 <ol>
-                    <li>Open the <strong>Lab Controller</strong>.</li>
                     <li>Click <strong>Start Lab</strong>.</li>
                     <li>Wait until the lab status changes to <strong>Running</strong>.</li>
                     <li>Confirm that the target is available at <code>http://localhost:3000</code>.</li>

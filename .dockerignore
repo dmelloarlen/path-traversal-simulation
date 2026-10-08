@@ -1,0 +1,9 @@
+electron-manager/
+website/node_modules/
+website/dist/
+lab-package/target/node_modules/
+lab-package/assets/
+lab-package/database/
+lab-package/scripts/
+.git/
+.gitignore

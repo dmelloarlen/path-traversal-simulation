@@ -10,8 +10,10 @@ const publicDir = path.join(root, "public");
 
 app.use(express.json());
 
+app.use(express.static(path.join(root, "dist")));
+
 app.get("/", (req, res) => {
-    res.send("Path Traversal Lab Target is Running");
+    res.sendFile(path.join(root, "dist", "index.html"));
 });
 
 app.get("/files", (req, res) => {
