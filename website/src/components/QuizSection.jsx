@@ -3,483 +3,315 @@ import { useState } from "react";
 const questionBank = [
     {
         id: 1,
-        question: "What is the primary cause of a Path Traversal vulnerability?",
+        difficulty: "Intermediate",
+        question: "In the lab, a request for report.txt succeeds in Vulnerable mode. What does this establish?",
         options: [
-            "Unrestricted file upload sizes",
-            "Insufficient validation of user-controlled file paths",
-            "Lack of HTTPS encryption",
-            "Using SQL databases instead of NoSQL"
+            "Every file on the server is accessible",
+            "The application can serve the requested normal file",
+            "Path traversal is definitely exploitable",
+            "The server is running as root"
         ],
         answer: 1,
-        explanation: "Path traversal occurs when user input is used to construct file paths without proper sanitization or validation."
+        explanation: "A successful normal-file request establishes the baseline. You must test a traversal path to assess whether access controls can be bypassed."
     },
     {
         id: 2,
-        question: "Which sequence of characters is standard for ascending to a parent directory in POSIX and Windows filesystems?",
+        difficulty: "Advanced",
+        question: "A traversal-style request returns HTTP 200. What is the strongest conclusion you can draw from the status code alone?",
         options: [
-            "./",
-            "../",
-            "//",
-            "~~/"
+            "The requested sensitive file was disclosed",
+            "The application is definitely vulnerable",
+            "The server returned a successful HTTP response, but its content must be examined",
+            "The secure mode has been bypassed"
         ],
-        answer: 1,
-        explanation: "The '../' sequence instructs the operating system filesystem navigator to step up one directory level."
+        answer: 2,
+        explanation: "HTTP 200 indicates a successful HTTP response, not necessarily successful access to the intended file. Inspect the response body and compare it with the lab's expected behavior."
     },
     {
         id: 3,
-        question: "What is another common name for a Path Traversal vulnerability?",
+        difficulty: "Intermediate",
+        question: "In the lab's file tree, which target is outside the public directory and is intended to demonstrate traversal?",
         options: [
-            "Directory Traversal",
-            "Cross-Site Scripting",
-            "Buffer Overflow",
-            "Remote Code Execution"
+            "report.txt",
+            "welcome.txt",
+            "private/users.txt",
+            "A file placed directly inside public"
         ],
-        answer: 0,
-        explanation: "Path Traversal is frequently referred to as Directory Traversal or dot-dot-slash vulnerability."
+        answer: 2,
+        explanation: "The private/users.txt target is outside the public directory in the lab's conceptual file tree."
     },
     {
         id: 4,
-        question: "Which system file is frequently targeted on Linux systems to verify a read-based path traversal vulnerability?",
+        difficulty: "Advanced",
+        question: "You request ../private/users.txt in Vulnerable mode and receive the expected private file contents. What does this demonstrate?",
         options: [
-            "/etc/passwd",
-            "C:\\Windows\\System32\\config\\SAM",
-            "/var/log/nginx/access.log",
-            "/boot/grub/grub.cfg"
+            "The application may be allowing access outside its intended public directory",
+            "The application correctly blocked traversal",
+            "The file extension is invalid",
+            "The browser automatically grants filesystem access"
         ],
         answer: 0,
-        explanation: "/etc/passwd is readable by default on Unix/Linux systems and confirms arbitrary file read capability."
+        explanation: "If the response contains the expected outside-directory file contents, the result is evidence that the path restriction can be bypassed in that lab scenario."
     },
     {
         id: 5,
-        question: "What critical Windows system file is often targeted in path traversal demonstrations?",
+        difficulty: "Intermediate",
+        question: "Why should you compare the same traversal request in Vulnerable and Secure modes?",
         options: [
-            "C:\\boot.ini or C:\\Windows\\win.ini",
-            "/etc/shadow",
-            "/proc/version",
-            "/sys/class/net"
+            "To determine whether the browser cached the response",
+            "To observe how the lab's security mode changes the outcome",
+            "To make the request use HTTPS",
+            "To prove that all real-world servers behave identically"
         ],
-        answer: 0,
-        explanation: "C:\\Windows\\win.ini and C:\\boot.ini are standard target paths on Windows to verify file disclosure."
+        answer: 1,
+        explanation: "Comparing the same input across modes helps isolate the effect of the lab's security behavior."
     },
     {
         id: 6,
-        question: "Which HTTP request component is most commonly exploited to perform path traversal?",
+        difficulty: "Advanced",
+        question: "The same traversal input returns HTTP 403 in Secure mode. What is the best interpretation?",
         options: [
-            "User-Agent header",
-            "URL path or GET query parameters",
-            "Host header",
-            "Accept-Encoding header"
+            "The server has crashed",
+            "The lab has denied the request",
+            "The file definitely does not exist",
+            "The response proves every possible traversal technique is blocked"
         ],
         answer: 1,
-        explanation: "Query parameters (e.g. ?filename=...) and URI path segments are the most common vectors."
+        explanation: "HTTP 403 indicates the request was forbidden. It does not prove the file is absent or that every possible bypass is prevented."
     },
     {
         id: 7,
-        question: "What risk does a successful read-only Path Traversal attack pose?",
+        difficulty: "Intermediate",
+        question: "Why does the lab encode the filename using encodeURIComponent when constructing its request?",
         options: [
-            "Denial of Service",
-            "Information Disclosure of sensitive configuration or system files",
-            "Altering administrative passwords in memory",
-            "Defacing the database schema"
+            "To encrypt the filename so nobody can read it",
+            "To encode characters safely for use as a URL query-parameter value",
+            "To authenticate the user",
+            "To guarantee that traversal is blocked"
         ],
         answer: 1,
-        explanation: "Read-only traversal exposes sensitive source code, passwords, configuration files, and tokens."
+        explanation: "URL encoding represents special characters appropriately in a query parameter. It is not encryption and does not replace server-side validation."
     },
     {
         id: 8,
-        question: "If an application appends '.pdf' to user input, which historic technique was used to truncate the extension in older platforms?",
+        difficulty: "Advanced",
+        question: "A developer blocks input only when it starts with ../. Which issue remains?",
         options: [
-            "Space padding",
-            "Null byte injection (%00 or \\0)",
-            "Double slash //",
-            "URL hash #"
+            "No issue remains if the check is case-sensitive",
+            "Other path forms or normalization behavior may evade the simplistic check",
+            "The check automatically verifies filesystem permissions",
+            "The check prevents all absolute paths by definition"
         ],
         answer: 1,
-        explanation: "Null bytes (%00) caused C-based file APIs to terminate the string early, ignoring appended extensions."
+        explanation: "Checking one string prefix is not a robust containment strategy. Validate the canonical resolved path against the intended base directory."
     },
     {
         id: 9,
-        question: "How does URL encoding '../' appear in standard percent-encoding?",
+        difficulty: "Advanced",
+        question: "Why is checking resolvedPath.startsWith(allowedBaseDirectory) alone potentially unsafe?",
         options: [
-            "%2e%2e%2f",
-            "%25%25%25",
-            "%fe%fe%fd",
-            "%90%90%90"
+            "startsWith cannot compare strings",
+            "A sibling path such as /safe/base-evil can share the prefix /safe/base",
+            "It always follows symbolic links incorrectly",
+            "It only works for URL paths"
         ],
-        answer: 0,
-        explanation: "Dot '.' is %2e and forward slash '/' is %2f, making '../' equivalent to %2e%2e%2f."
+        answer: 1,
+        explanation: "String-prefix checks can accept sibling paths with a shared textual prefix. Use canonical paths and a path-aware containment check with proper directory boundaries."
     },
     {
         id: 10,
-        question: "What is Double URL encoding for '../'?",
+        difficulty: "Intermediate",
+        question: "What should a secure file-download endpoint ideally accept when users only need a limited set of files?",
         options: [
-            "%252e%252e%252f",
-            "%2e%2e%2f",
-            "..%2f",
-            "%252f%252f"
+            "Any absolute path supplied by the user",
+            "A filename or identifier from an allowlist",
+            "Any path after removing one occurrence of ../",
+            "A path supplied through a hidden form field"
         ],
-        answer: 0,
-        explanation: "In double encoding, '%' (%25) is encoded again: %2e becomes %252e and %2f becomes %252f."
+        answer: 1,
+        explanation: "An allowlist of permitted filenames or opaque file identifiers reduces reliance on arbitrary user-controlled paths."
     },
     {
         id: 11,
-        question: "Why might nested sequences like '....//' bypass basic blacklists that replace '../' with empty strings?",
+        difficulty: "Advanced",
+        question: "A developer removes ../ from the input exactly once. Why is this not a reliable defense?",
         options: [
-            "The web server automatically strips numbers.",
-            "Removing '../' once collapses '....//' into '../'.",
-            "'....//' triggers a 404 error before validation.",
-            "It causes an infinite loop in Regex."
+            "The string becomes too short",
+            "Repeated or transformed patterns may remain after a single replacement",
+            "The operating system ignores every dot",
+            "The browser always converts the input to an absolute path"
         ],
         answer: 1,
-        explanation: "A single non-recursive replace of '../' in '....//' removes the inner '../', leaving behind '../'."
+        explanation: "One-time string replacement is brittle. Resolve and validate the final canonical path against a trusted base directory instead."
     },
     {
         id: 12,
-        question: "Which Unicode / UTF-8 representation might bypass poorly written input filters checking for '/'?",
+        difficulty: "Intermediate",
+        question: "Which statement best distinguishes input validation from authorization?",
         options: [
-            "Overlong UTF-8 sequences like %c0%af or %c1%9c",
-            "%20",
-            "\\n",
-            "\\t"
+            "They are identical controls",
+            "Validation checks whether input is acceptable; authorization checks whether access is permitted",
+            "Authorization only applies to browsers",
+            "Validation guarantees that the requested file belongs to the user"
         ],
-        answer: 0,
-        explanation: "Overlong UTF-8 encodings like %c0%af decode to '/' after security checks if IIS/Apache decodes prematurely."
+        answer: 1,
+        explanation: "Both controls matter: validate the input and independently enforce which files the requester is allowed to access."
     },
     {
         id: 13,
-        question: "On Windows operating systems, which directory separator character is valid in file paths alongside '/'?",
+        difficulty: "Advanced",
+        question: "The lab shows a 403 response in Secure mode, but you have not inspected the response body. What should you do before writing your conclusion?",
         options: [
-            "\\ (Backslash)",
-            ": (Colon only)",
-            "| (Pipe)",
-            "> (Greater than)"
+            "Assume all file paths are secure",
+            "Inspect the response and compare it with the expected lab behavior",
+            "Conclude that the server is offline",
+            "Change the request to an unrelated file"
         ],
-        answer: 0,
-        explanation: "Windows accepts both forward slash '/' and backslash '\\' as directory path separators."
+        answer: 1,
+        explanation: "Record both the HTTP status and response content. Base the conclusion on the observed behavior rather than the status code alone."
     },
     {
         id: 14,
-        question: "How can absolute path traversal bypass prefix prepending logic like '/var/www/uploads/' + user_input?",
+        difficulty: "Intermediate",
+        question: "Which item is the strongest evidence that a traversal test exposed a file?",
         options: [
-            "Passing an absolute path like '/etc/passwd' if the path resolver ignores the base path.",
-            "Passing a single dot .",
-            "Using upper case characters.",
-            "Changing HTTP method to OPTIONS."
+            "The URL contains ../",
+            "The response contains the expected contents of the outside-directory target",
+            "The submit button changes color",
+            "The browser displays a loading indicator"
         ],
-        answer: 0,
-        explanation: "In some languages, passing an absolute path (e.g. '/etc/passwd') overrides relative root joins."
+        answer: 1,
+        explanation: "The returned content, interpreted alongside the status code and expected target, is stronger evidence than the request string alone."
     },
     {
         id: 15,
-        question: "What is the impact of an arbitrary file write path traversal vulnerability?",
+        difficulty: "Advanced",
+        question: "A server resolves a user-supplied path and checks that the result is inside /srv/app/public. What additional detail matters for a robust check?",
         options: [
-            "Remote Code Execution by overwriting executable binaries or configuration scripts",
-            "SQL Injection",
-            "Cross-Site Request Forgery",
-            "Memory leak in the client browser"
+            "Whether the filename contains uppercase letters",
+            "Whether the check uses canonical paths and a correct directory-boundary comparison",
+            "Whether the browser has JavaScript enabled",
+            "Whether the URL ends in .txt"
         ],
-        answer: 0,
-        explanation: "Writing files outside intended locations allows overwriting SSH keys, cron jobs, or web shells leading to RCE."
+        answer: 1,
+        explanation: "The server must compare normalized/canonical paths safely and enforce a real directory boundary, rather than relying on a raw prefix."
     },
     {
         id: 16,
-        question: "Which Node.js built-in module function strips directory path prefixes and returns only the filename portion?",
+        difficulty: "Advanced",
+        question: "Why should a file-serving service run with least filesystem privilege?",
         options: [
-            "path.basename()",
-            "path.join()",
-            "path.resolve()",
-            "fs.readFileSync()"
+            "It makes every request return HTTP 200",
+            "It limits the damage if a path restriction is bypassed",
+            "It eliminates the need for validation",
+            "It hides all filenames from the browser"
         ],
-        answer: 0,
-        explanation: "path.basename('/etc/passwd') returns 'passwd', effectively stripping directory traversal sequences."
+        answer: 1,
+        explanation: "A low-privilege service account limits which files an attacker could read even if another control fails."
     },
     {
         id: 17,
-        question: "What does path.resolve('/var/www/html', '../../etc/passwd') return in Node.js?",
+        difficulty: "Intermediate",
+        question: "In the lab, a normal file works in both modes but an outside-directory path is denied in Secure mode. What is the most reasonable conclusion?",
         options: [
-            "/etc/passwd",
-            "/var/www/html/../../etc/passwd",
-            "null",
-            "An error throw"
+            "The lab's secure behavior permits the normal file while restricting the tested traversal path",
+            "All files on the machine are protected from every attack",
+            "The browser is responsible for file authorization",
+            "The file tree is irrelevant to the test"
         ],
         answer: 0,
-        explanation: "path.resolve evaluates relative segments ('..') and outputs the absolute normalized path '/etc/passwd'."
+        explanation: "This comparison is consistent with the intended lab behavior. It does not establish that every possible attack or path form is blocked."
     },
     {
         id: 18,
-        question: "What is canonicalization in the context of file path handling?",
+        difficulty: "Advanced",
+        question: "Why should the server not trust a filename merely because it was submitted by a logged-in user?",
         options: [
-            "Converting a relative path with symlinks, '..', and encodings into its unique absolute path.",
-            "Encrypting the file path with AES-256.",
-            "Compressing the path string using gzip.",
-            "Converting the path into base64 format."
+            "Logged-in users cannot send special characters",
+            "Authentication identifies the user but does not automatically authorize access to every file",
+            "Authentication encrypts all paths",
+            "A login session disables path traversal syntax"
         ],
-        answer: 0,
-        explanation: "Canonicalization resolves symbolic links, relative references, and encodings into an absolute canonical path."
+        answer: 1,
+        explanation: "Authentication and file authorization are different. The server must still restrict access to permitted resources."
     },
     {
         id: 19,
-        question: "Which defense technique restricts a process's root directory access at the operating system level?",
+        difficulty: "Intermediate",
+        question: "Which request input is most relevant to the lab's file-selection behavior?",
         options: [
-            "chroot jail or containerization (Docker/namespaces)",
-            "CORS policies",
-            "Content Security Policy (CSP)",
-            "Web Application Firewall (WAF) rule only"
+            "The filename value sent in the name query parameter",
+            "The browser window title",
+            "The user's screen resolution",
+            "The color of the selected tab"
         ],
         answer: 0,
-        explanation: "Chroot jails and container isolation restrict the filesystem environment visible to the application process."
+        explanation: "The simulation sends the chosen filename through the name query parameter, along with the selected mode."
     },
     {
         id: 20,
-        question: "How should an application securely verify if a resolved file path is permitted?",
+        difficulty: "Advanced",
+        question: "A request for ../config/database.txt is denied in Secure mode. Which conclusion is too strong?",
         options: [
-            "Check that resolvedPath.startsWith(allowedBaseDirectory) returns true.",
-            "Check if the filename contains .txt.",
-            "Check if the string length is under 50 characters.",
-            "Use String.includes('../')."
+            "This tested request was denied",
+            "The observed behavior matches the lab's intended secure-mode restriction",
+            "Every encoding, operating system path format, and possible bypass has been ruled out",
+            "The response should be recorded as part of the test"
         ],
-        answer: 0,
-        explanation: "Canonicalizing both paths and checking that the target path begins with the base directory guarantees containment."
+        answer: 2,
+        explanation: "One test only supports a conclusion about the tested input and observed environment. Broader security claims require broader testing and code review."
     },
     {
         id: 21,
-        question: "Why is relying solely on client-side path validation insecure?",
+        difficulty: "Advanced",
+        question: "Which approach provides the strongest defense for a feature that serves files from one designated directory?",
         options: [
-            "Client-side controls can be easily bypassed by intercepting or sending direct HTTP requests.",
-            "Browsers do not support JavaScript regex.",
-            "Client validation slows down server response times.",
-            "Server logs will fail to record client events."
+            "Remove ../ once and trust the result",
+            "Accept user paths and rely on a WAF",
+            "Map allowed identifiers to known files, enforce canonical path containment, and use least privilege",
+            "Hide the file path field using CSS"
         ],
-        answer: 0,
-        explanation: "Attackers can bypass browser JS validations using tools like cURL, Burp Suite, or Postman."
+        answer: 2,
+        explanation: "Use layered controls: allowlisted identifiers, canonical path containment, and restricted filesystem permissions. A WAF or UI change is not a substitute."
     },
     {
         id: 22,
-        question: "In Java, what method on java.io.File retrieves the canonical path?",
+        difficulty: "Intermediate",
+        question: "What does the lab's conceptual file tree help you do?",
         options: [
-            "file.getCanonicalPath()",
-            "file.getAbs()",
-            "file.toCleanString()",
-            "file.sanitize()"
+            "See the relationship between the public directory and outside targets",
+            "Read arbitrary files on your own computer",
+            "Change the server's filesystem permissions",
+            "Confirm the operating system used by every server"
         ],
         answer: 0,
-        explanation: "java.io.File.getCanonicalPath() resolves relative paths and symlinks to determine true filesystem location."
+        explanation: "The tree illustrates which files are inside the intended public area and which targets are outside it."
     },
     {
         id: 23,
-        question: "In Python, which standard module function resolves absolute canonical paths?",
+        difficulty: "Advanced",
+        question: "A test returns HTTP 200, but the body says access denied. How should you record the result?",
         options: [
-            "os.path.realpath() or Path.resolve()",
-            "os.path.split()",
-            "os.getcwd()",
-            "sys.path.append()"
+            "Definitely successful file disclosure",
+            "A successful HTTP status with a body that appears to deny access; investigate the application's response semantics",
+            "A confirmed server crash",
+            "Proof that the path does not exist"
         ],
-        answer: 0,
-        explanation: "os.path.realpath() eliminates symlinks and relative path indicators like '..' in Python."
+        answer: 1,
+        explanation: "HTTP status and application-level content can disagree. Record both and investigate how the application represents denial or errors."
     },
     {
         id: 24,
-        question: "In PHP, which function returns the canonicalized absolute pathname?",
+        difficulty: "Advanced",
+        question: "What is the best way to report a finding from this lab?",
         options: [
-            "realpath()",
-            "basename()",
-            "file_exists()",
-            "pathinfo()"
+            "Say 'the website is insecure' without evidence",
+            "Record the mode, input, status code, relevant response content, and expected-versus-observed behavior",
+            "Report only the URL",
+            "Assume the result applies to all operating systems"
         ],
-        answer: 0,
-        explanation: "PHP's realpath() function expands symbolic links and relative path references and returns false if file missing."
-    },
-    {
-        id: 25,
-        question: "What is an indirect file reference pattern (whitelist mapping)?",
-        options: [
-            "Mapping user choices (e.g. id=1) to fixed internal filenames in a server dictionary rather than taking file paths directly.",
-            "Using 302 redirects for all files.",
-            "Storing files on external S3 buckets without access keys.",
-            "Renaming all files with numbers."
-        ],
-        answer: 0,
-        explanation: "Indirect reference prevents users from specifying any path characters, enforcing strict lookup maps."
-    },
-    {
-        id: 26,
-        question: "Which vulnerability scanner tool is widely used to automatically detect Path Traversal flaws?",
-        options: [
-            "OWASP ZAP / Burp Suite / Nmap",
-            "Wireshark",
-            "Hashcat",
-            "John the Ripper"
-        ],
-        answer: 0,
-        explanation: "Web security scanners like Burp Suite and OWASP ZAP include automated payloads to test path traversal."
-    },
-    {
-        id: 27,
-        question: "In a web server access log, what log entry signature indicates a potential path traversal attempt?",
-        options: [
-            "GET /download?file=..%2F..%2F..%2Fetc%2Fpasswd HTTP/1.1",
-            "POST /login HTTP/1.1 200",
-            "GET /favicon.ico HTTP/1.1 304",
-            "OPTIONS /api HTTP/1.1"
-        ],
-        answer: 0,
-        explanation: "Frequent percent-encoded or raw dot-dot-slash patterns target system files in GET parameters indicate probes."
-    },
-    {
-        id: 28,
-        question: "Which of the following paths represents a Windows UNC path bypass attempt?",
-        options: [
-            "\\\\attacker-server\\share\\file.txt",
-            "C:\\Users\\Public",
-            "/dev/null",
-            "http://localhost:3000"
-        ],
-        answer: 0,
-        explanation: "UNC paths (\\\\host\\share) can trick Windows file APIs into loading remote SMB files or leaking NTLM hashes."
-    },
-    {
-        id: 29,
-        question: "What type of encoding is %252e%252e%252f?",
-        options: [
-            "Double URL encoding",
-            "HTML Entity encoding",
-            "Base64 encoding",
-            "Hexadecimal binary encoding"
-        ],
-        answer: 0,
-        explanation: "%252e double URL encodes '.' and %252f double URL encodes '/'."
-    },
-    {
-        id: 30,
-        question: "Why is blacklisting dangerous as a primary security control against path traversal?",
-        options: [
-            "Attackers can use alternative encodings, alternate slashes, or nested sequences to bypass the list.",
-            "Blacklists consume too much RAM.",
-            "Blacklists require database indexing.",
-            "Blacklists break valid user passwords."
-        ],
-        answer: 0,
-        explanation: "Blacklists fail because it is nearly impossible to enumerate all possible bypass combinations and encodings."
-    },
-    {
-        id: 31,
-        question: "What is the recommended principle of least privilege regarding web server user accounts?",
-        options: [
-            "Run the web server process under a dedicated low-privilege user account with read access strictly restricted to required web directories.",
-            "Run the server as root or SYSTEM to ensure high availability.",
-            "Grant write access to /etc/ for error logging.",
-            "Disable all user permissions."
-        ],
-        answer: 0,
-        explanation: "Limiting web process OS permissions restricts damage even if path traversal reads sensitive system files."
-    },
-    {
-        id: 32,
-        question: "If a web application serves files using an ID parameter (e.g. file_id=42), how does this protect against path traversal?",
-        options: [
-            "User input is never used directly as a file system path; the server looks up file ID 42 in a secure database/mapping.",
-            "It encrypts the user session.",
-            "It forces HTTPS communication.",
-            "It prevents cross-site scripting."
-        ],
-        answer: 0,
-        explanation: "Indirect identifiers disconnect request parameters from filesystem path resolution completely."
-    },
-    {
-        id: 33,
-        question: "Which HTTP Status Code is appropriate when a path traversal attempt outside the allowed directory is blocked by server validation?",
-        options: [
-            "403 Forbidden or 400 Bad Request",
-            "200 OK",
-            "302 Found",
-            "500 Internal Server Error"
-        ],
-        answer: 0,
-        explanation: "HTTP 403 Forbidden signals unauthorized resource access attempt, while 400 Bad Request flags malformed input."
-    },
-    {
-        id: 34,
-        question: "What is a 'Zip Slip' vulnerability?",
-        options: [
-            "A path traversal vulnerability during archive extraction where filenames inside a zip archive contain '../' sequences to overwrite system files.",
-            "A compression algorithm flaw causing memory exhaustion.",
-            "A WiFi packet sniffing exploit.",
-            "An SSL certificate revocation issue."
-        ],
-        answer: 0,
-        explanation: "Zip Slip occurs when extracted archive entries contain unvalidated relative paths like '../../shell.sh'."
-    },
-    {
-        id: 35,
-        question: "Which HTTP header can be combined with file uploads to prevent path traversal in destination filenames?",
-        options: [
-            "Content-Disposition sanitization",
-            "Keep-Alive",
-            "Accept-Language",
-            "Server-Timing"
-        ],
-        answer: 0,
-        explanation: "Extracting filename from Content-Disposition requires stripping path prefixes (e.g. using path.basename)."
-    },
-    {
-        id: 36,
-        question: "In Docker containerized applications, how do containers mitigate host file access via path traversal?",
-        options: [
-            "Container root filesystem isolation prevents path traversal from escaping the container filesystem to the host OS filesystem.",
-            "Docker automatically deletes '../' from HTTP headers.",
-            "Containers turn off file system permissions.",
-            "Docker converts all files into SQL databases."
-        ],
-        answer: 0,
-        explanation: "Container namespaces isolate the root mount table so traversal cannot reach host host files outside mounts."
-    },
-    {
-        id: 37,
-        question: "Which vulnerability classification framework categorizes Path Traversal under CWE-22?",
-        options: [
-            "Common Weakness Enumeration (CWE)",
-            "Common Vulnerability Scoring System (CVSS)",
-            "National Vulnerability Database (NVD)",
-            "OWASP Top 10 API Security"
-        ],
-        answer: 0,
-        explanation: "CWE-22 is the specific Common Weakness Enumeration ID for Path Traversal."
-    },
-    {
-        id: 38,
-        question: "What does CWE-22 stand for?",
-        options: [
-            "Improper Limitation of a Pathname to a Restricted Directory ('Path Traversal')",
-            "SQL Injection in Dynamic Queries",
-            "Cross-Site Scripting (XSS)",
-            "Broken Object Level Authorization"
-        ],
-        answer: 0,
-        explanation: "CWE-22 defines weaknesses involving improper limitation of file path parameters."
-    },
-    {
-        id: 39,
-        question: "What OWASP Top 10 (2021) category includes Path Traversal vulnerabilities?",
-        options: [
-            "A01:2021 – Broken Access Control",
-            "A02:2021 – Cryptographic Failures",
-            "A03:2021 – Injection",
-            "A05:2021 – Security Misconfiguration"
-        ],
-        answer: 0,
-        explanation: "OWASP Top 10 2021 categorizes Path Traversal under A01: Broken Access Control."
-    },
-    {
-        id: 40,
-        question: "What is the most robust combination of defenses against Path Traversal vulnerabilities?",
-        options: [
-            "Use indirect file identifiers (whitelisting), canonicalize & check path prefixes, run under low-privilege service accounts, and use isolated container environments.",
-            "Rely on WAF rules and client-side JavaScript validation.",
-            "Strip '../' once and convert all filenames to uppercase.",
-            "Disable file downloads on the website entirely."
-        ],
-        answer: 0,
-        explanation: "Defense-in-depth combining canonical path verification, least privilege, and container isolation is most effective."
+        answer: 1,
+        explanation: "A reproducible finding includes the test conditions, request input, status, response evidence, and a carefully scoped conclusion."
     }
 ];
 
@@ -541,7 +373,15 @@ export default function QuizSection() {
                 PATH TRAVERSAL LAB · QUIZ ASSESSMENT
             </div>
             <h1>Path Traversal Assessment</h1>
-
+            <div className="quiz-progress-track" aria-label="Quiz completion">
+                <div
+                    className="quiz-progress-fill"
+                    style={{
+                        width: `${(Object.keys(userAnswers).length / quizQuestions.length) * 100
+                            }%`
+                    }}
+                />
+            </div>
             <div className="quiz-summary-card">
                 <div>
                     <strong>Progress:</strong> {Object.keys(userAnswers).length} of {quizQuestions.length} answered
@@ -579,7 +419,15 @@ export default function QuizSection() {
                         <div key={q.id} className={`quiz-card ${statusClass}`}>
                             <div className="quiz-header">
                                 <span className="q-number">Q{idx + 1}</span>
+
                                 <span className="q-text">{q.question}</span>
+
+                                <span
+                                    className={`difficulty-badge ${q.difficulty === "Advanced" ? "advanced" : "intermediate"
+                                        }`}
+                                >
+                                    {q.difficulty}
+                                </span>
                             </div>
                             <div className="quiz-options">
                                 {q.options.map((opt, optIdx) => {
