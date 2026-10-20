@@ -1,58 +1,33 @@
-import { useLayoutEffect, useRef, useState } from "react";
-import Header from "./components/Header";
-import Sidebar from "./components/Sidebar";
+import { useState } from "react";
 import ExperimentContent from "./components/ExperimentContent";
 import "./App.css";
-import LabController from "./components/LabController";
+
+const tabs = ["Simulation", "Quiz / Assessment"];
 
 export default function App() {
-    const [activeTab, setActiveTab] = useState("Aim, Objectives");
-    const sidebarRef = useRef(null);
-    const mainContentRef = useRef(null);
-
-    useLayoutEffect(() => {
-        if (activeTab !== "Quiz / Assessment") return undefined;
-
-        const sidebar = sidebarRef.current;
-        const mainContent = mainContentRef.current;
-        if (!sidebar || !mainContent) return undefined;
-
-        const syncSidebarHeight = () => {
-            mainContent.style.setProperty(
-                "--sidebar-height",
-                `${sidebar.getBoundingClientRect().height}px`
-            );
-        };
-
-        syncSidebarHeight();
-        const resizeObserver = new ResizeObserver(syncSidebarHeight);
-        resizeObserver.observe(sidebar);
-
-        return () => {
-            resizeObserver.disconnect();
-            mainContent.style.removeProperty("--sidebar-height");
-        };
-    }, [activeTab]);
+    const [activeTab, setActiveTab] = useState("Simulation");
+    const isQuiz = activeTab === "Quiz / Assessment";
 
     return (
         <div className="app">
-            <Header />
-            <LabController />
-            <div className="workspace">
-                  <Sidebar
-                      activeTab={activeTab}
-                      setActiveTab={setActiveTab}
-                      sidebarRef={sidebarRef}
-                  />
-                <main
-                    ref={mainContentRef}
-                    className={`main-content ${activeTab === "Quiz / Assessment" ? "quiz-main-content" : ""}`}
-                >
+            <nav className="lab-tabs">
+                {tabs.map((tab) => (
+                    <button
+                        key={tab}
+                        className={`lab-tab ${activeTab === tab ? "active" : ""}`}
+                        onClick={() => setActiveTab(tab)}
+                    >
+                        {tab}
+                    </button>
+                ))}
+            </nav>
 
-                    <ExperimentContent activeTab={activeTab} />
-                </main>
-
-            </div>
+            <main
+                className={`main-content ${isQuiz ? "quiz-main-content" : ""}`}
+                style={isQuiz ? { "--sidebar-height": "80vh" } : undefined}
+            >
+                <ExperimentContent activeTab={activeTab} />
+            </main>
         </div>
     );
 }
