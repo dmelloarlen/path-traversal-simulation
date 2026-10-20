@@ -1495,3 +1495,139 @@
     border-color: rgba(169, 95, 66, 0.38);
     color: var(--accent-dark);
 }
+
+/* =========================================
+   QUIZ ENHANCEMENTS
+   ========================================= */
+
+/* Quiz completion progress bar */
+.quiz-progress-track {
+    width: 100%;
+    height: 7px;
+    margin: 0 0 16px;
+    overflow: hidden;
+    background: rgba(169, 95, 66, 0.14);
+    border-radius: 999px;
+    flex-shrink: 0;
+}
+
+.quiz-progress-fill {
+    height: 100%;
+    background: var(--accent-dark);
+    border-radius: inherit;
+    transition: width 0.25s ease;
+}
+
+/* Keep the question and difficulty badge readable */
+.quiz-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.q-text {
+    flex: 1;
+    min-width: 180px;
+}
+
+/* Difficulty indicators */
+.difficulty-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 750;
+    line-height: 1.2;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.difficulty-badge.intermediate {
+    color: #78552b;
+    background: #f7ecd5;
+    border: 1px solid #e7d3a7;
+}
+
+.difficulty-badge.advanced {
+    color: #963f32;
+    background: #f9e3dd;
+    border: 1px solid #eac0b5;
+}
+
+/* Improve question-card spacing */
+.quiz-card {
+    gap: 16px;
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.quiz-card:hover {
+    box-shadow: 0 5px 16px rgba(61, 42, 32, 0.07);
+}
+
+/* Make answer choices easier to distinguish */
+.quiz-opt {
+    line-height: 1.5;
+}
+
+.quiz-opt input[type="radio"] {
+    flex-shrink: 0;
+    accent-color: var(--accent-dark);
+}
+
+.quiz-opt:focus-within {
+    outline: 2px solid var(--accent-dark);
+    outline-offset: 2px;
+}
+
+/* Clearer feedback after submission */
+.quiz-card.correct {
+    border-left: 4px solid #2e7d32;
+}
+
+.quiz-card.incorrect {
+    border-left: 4px solid #c62828;
+}
+
+.quiz-explanation {
+    line-height: 1.6;
+}
+
+/* Responsive layout */
+@media (max-width: 640px) {
+    .quiz-header {
+        gap: 8px;
+    }
+
+    .q-text {
+        min-width: 0;
+        flex-basis: 100%;
+        order: 2;
+    }
+
+    .difficulty-badge {
+        margin-left: auto;
+    }
+
+    .quiz-card {
+        padding: 16px;
+    }
+
+    .quiz-summary-card {
+        top: 8px;
+        padding: 12px;
+        gap: 12px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .quiz-progress-fill,
+    .quiz-card {
+        transition: none;
+    }
+}

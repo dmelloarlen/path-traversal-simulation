@@ -94,7 +94,7 @@ export default function PathTraversalSimulation({ selectedSection }) {
             setResponse({
                 status: "Connection Error",
                 data: {
-                    message: "The target is unavailable. Start the lab using the Lab Controller."
+                    message: "The target is unavailable. Start the Docker lab and try again."
                 }
             });
         } finally {
@@ -284,7 +284,7 @@ export default function PathTraversalSimulation({ selectedSection }) {
                             setResponse(null);
                         }}
                     >
-                        
+
                         <strong><span>⚠</span> Vulnerable</strong>
                         <small>Without path restriction</small>
                     </button>
@@ -296,7 +296,7 @@ export default function PathTraversalSimulation({ selectedSection }) {
                             setResponse(null);
                         }}
                     >
-                        
+
                         <strong><span>✓</span> Secure</strong>
                         <small>With path validation</small>
                     </button>
