@@ -1,18 +1,10 @@
-import EmptySection from "./EmptySection";
 import PathTraversalSimulation from "./PathTraversalSimulation";
+import QuizSection from "./QuizSection";
 
 export default function ExperimentContent({ activeTab }) {
-    const simulationSections = [
-        "Simulation",
-        "Normal File",
-        "Directory Traversal",
-        "Configuration File",
-        "Vulnerable vs Secure"
-    ];
-
-    if (simulationSections.includes(activeTab)) {
-        return <PathTraversalSimulation selectedSection={activeTab} />;
+    if (activeTab === "Quiz / Assessment") {
+        return <QuizSection />;
     }
 
-    return <EmptySection title={activeTab} />;
+    return <PathTraversalSimulation selectedSection={activeTab} />;
 }
